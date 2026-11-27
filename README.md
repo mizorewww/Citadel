@@ -1,3 +1,5 @@
+> **This is Rayon's fork of [orlandos-nl/Citadel](https://github.com/orlandos-nl/Citadel)**, by Joannis Orlandos and contributors, under the same MIT license. The `rayon` branch is Citadel 0.12.0 with three patches: `SSHClientSettings.loginTimeout` (the login timeout set by the caller), `listDirectory` closing the directory handle it opens, and `SFTPClient.getLinkAttributes` (lstat). Use upstream Citadel for anything else.
+
 Citadel is a high level API around [NIOSSH](https://github.com/apple/swift-nio-ssh). It makes NIOSSH accessible and easy to adopt, while providing tools otherwise out-of-scope for NIOSSH.
 
 Citadel is in active development by our team or Swift experts. Get in touch with our [Discord Community](https://discord.gg/H6799jh).
