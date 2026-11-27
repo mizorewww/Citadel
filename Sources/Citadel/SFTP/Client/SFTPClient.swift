@@ -169,28 +169,26 @@ public final class SFTPClient: Sendable {
             throw SFTPError.invalidResponse
         }
         
+        // The handle stays open on the server until it is closed, whether
+        // or not reading it worked: servers limit how many a session holds.
+        let names: [SFTPMessage.Name]
+        do {
+            names = try await readDirectory(handle.handle)
+        } catch {
+            _ = try? await sendRequest(.closeFile(.init(requestId: self.allocateRequestId(), handle: handle.handle)))
+            throw error
+        }
+        _ = try await sendRequest(.closeFile(.init(requestId: self.allocateRequestId(), handle: handle.handle)))
+        return names
+    }
+
+    private func readDirectory(_ handle: ByteBuffer) async throws -> [SFTPMessage.Name] {
         var names = [SFTPMessage.Name]()
-        var response = try await sendRequest(
-            .readdir(
-                .init(
-                    requestId: self.allocateRequestId(),
-                    handle: handle.handle
-                )
-            )
-        )
-        
+        var response = try await sendRequest(.readdir(.init(requestId: self.allocateRequestId(), handle: handle)))
         while case .name(let name) = response {
             names.append(name)
-            response = try await sendRequest(
-                .readdir(
-                    .init(
-                        requestId: self.allocateRequestId(),
-                        handle: handle.handle
-                    )
-                )
-            )
+            response = try await sendRequest(.readdir(.init(requestId: self.allocateRequestId(), handle: handle)))
         }
-        
         return names
     }
     
