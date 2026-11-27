@@ -94,7 +94,18 @@ final class ClientHandshakeHandler: ChannelInboundHandler, Sendable {
     func errorCaught(context: ChannelHandlerContext, error: any Error) {
         self.promise.fail(error)
     }
-    
+
+    // Without a login timeout nothing else ends the wait for a sign-in
+    // whose channel closed: the pipeline keeps this handler alive.
+    func channelInactive(context: ChannelHandlerContext) {
+        self.promise.fail(ChannelError.ioOnClosedChannel)
+        context.fireChannelInactive()
+    }
+
+    func handlerRemoved(context: ChannelHandlerContext) {
+        self.promise.fail(ChannelError.ioOnClosedChannel)
+    }
+
     deinit {
         struct Disconnected: Error {}
         self.promise.fail(Disconnected())
