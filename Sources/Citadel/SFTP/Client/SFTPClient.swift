@@ -178,7 +178,8 @@ public final class SFTPClient: Sendable {
             _ = try? await sendRequest(.closeFile(.init(requestId: self.allocateRequestId(), handle: handle.handle)))
             throw error
         }
-        _ = try await sendRequest(.closeFile(.init(requestId: self.allocateRequestId(), handle: handle.handle)))
+        // The listing is read; failing to close its handle doesn't lose it.
+        _ = try? await sendRequest(.closeFile(.init(requestId: self.allocateRequestId(), handle: handle.handle)))
         return names
     }
 
